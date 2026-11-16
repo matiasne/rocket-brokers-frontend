@@ -489,7 +489,10 @@ select.active { color: var(--failed); border-color: var(--failed); }
 .offline-note { color: var(--failed); }
 
 .avatar.protocol { font-size: 11px; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); }
-aside .agent-item + h2 { margin-top: 20px; }
+/* The sidebar's collapsible groups: the heading is the toggle. */
+.aside-group { margin-bottom: 10px; }
+.aside-group summary { margin: 0 8px 10px; }
+.aside-group summary h2 { display: inline; margin: 0; font-size: 13px; }
 pre {
   margin: 6px 0;
   padding: 8px 10px;

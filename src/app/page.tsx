@@ -1198,6 +1198,8 @@ export default function Page() {
       const router = items[0]
       const specialist = items.find(item => item.dataset.agent === task.agent)
       if (!router || !specialist || router === specialist) return
+      // Collapsed in the sidebar: the rows have no position to animate between.
+      if (specialist.closest('details')?.open === false) return
       const [from, to] = kind === 'request' ? [router, specialist] : [specialist, router]
       const state = taskState(task)
       const row = specialist.getBoundingClientRect()
@@ -1912,49 +1914,57 @@ export default function Page() {
   return (
     <div className="layout">
       <aside ref={asideRef}>
-        <h2>Front door</h2>
-        <button type="button" className="agent-item" onClick={() => setPoppyOpen(true)}>
-          <span className="avatar protocol">PAP</span>
-          <span className="agent-name">Personal Agent Protocol</span>
-          <span className="agent-status">{discovery?.document ? 'poppy.json published' : 'offline'}</span>
-        </button>
-        {/* No chat mode: an MCP client (the borrower's assistant) connects to this URL itself. */}
-        <button type="button" className="agent-item" onClick={() => setMcpOpen(true)}>
-          <span className="avatar protocol">MCP</span>
-          <span className="agent-name">Model Context Protocol</span>
-          <span className="agent-status">
-            {mcp?.tools ? `${mcp.tools.length} ${mcp.tools.length === 1 ? 'tool' : 'tools'} published` : 'offline'}
-          </span>
-        </button>
-        <h2>Agents</h2>
-        {agents.map(agent => {
-          const working = workingIds.has(agent.id)
-          const disabled = agent.enabled === false
-          return (
-            <div key={agent.id} className={`agent-row${disabled ? ' disabled' : ''}`}>
-              <button type="button" className="agent-item" data-agent={agent.id} onClick={() => setOpenAgentId(agent.id)}>
-                <Avatar id={agent.id} working={working} />
-                <span className="agent-name">{displayName(agent.id)}</span>
-                <span className={`agent-status${working ? ' working' : ''}`}>
-                  {disabled ? 'disabled' : !agent.card ? 'offline' : working ? 'working…' : 'idle'}
-                  {!disabled && !!agent.delayMs && ` · ${agent.delayMs / 1000}s delay`}
-                  {!disabled && !!agent.fault && agent.fault !== 'none' && ` · fault: ${agent.fault}`}
-                </span>
-              </button>
-              {(agent.enabled !== null || agent.delayMs !== null || agent.fault !== null) && (
-                <button
-                  type="button"
-                  className="settings-button"
-                  aria-label={`${displayName(agent.id)} settings`}
-                  title="Settings"
-                  onClick={() => setSettingsAgentId(agent.id)}
-                >
-                  <GearIcon />
+        <details className="aside-group">
+          <summary>
+            <h2>Front door</h2>
+          </summary>
+          <button type="button" className="agent-item" onClick={() => setPoppyOpen(true)}>
+            <span className="avatar protocol">PAP</span>
+            <span className="agent-name">Personal Agent Protocol</span>
+            <span className="agent-status">{discovery?.document ? 'poppy.json published' : 'offline'}</span>
+          </button>
+          {/* No chat mode: an MCP client (the borrower's assistant) connects to this URL itself. */}
+          <button type="button" className="agent-item" onClick={() => setMcpOpen(true)}>
+            <span className="avatar protocol">MCP</span>
+            <span className="agent-name">Model Context Protocol</span>
+            <span className="agent-status">
+              {mcp?.tools ? `${mcp.tools.length} ${mcp.tools.length === 1 ? 'tool' : 'tools'} published` : 'offline'}
+            </span>
+          </button>
+        </details>
+        <details className="aside-group">
+          <summary>
+            <h2>Agents</h2>
+          </summary>
+          {agents.map(agent => {
+            const working = workingIds.has(agent.id)
+            const disabled = agent.enabled === false
+            return (
+              <div key={agent.id} className={`agent-row${disabled ? ' disabled' : ''}`}>
+                <button type="button" className="agent-item" data-agent={agent.id} onClick={() => setOpenAgentId(agent.id)}>
+                  <Avatar id={agent.id} working={working} />
+                  <span className="agent-name">{displayName(agent.id)}</span>
+                  <span className={`agent-status${working ? ' working' : ''}`}>
+                    {disabled ? 'disabled' : !agent.card ? 'offline' : working ? 'working…' : 'idle'}
+                    {!disabled && !!agent.delayMs && ` · ${agent.delayMs / 1000}s delay`}
+                    {!disabled && !!agent.fault && agent.fault !== 'none' && ` · fault: ${agent.fault}`}
+                  </span>
                 </button>
-              )}
-            </div>
-          )
-        })}
+                {(agent.enabled !== null || agent.delayMs !== null || agent.fault !== null) && (
+                  <button
+                    type="button"
+                    className="settings-button"
+                    aria-label={`${displayName(agent.id)} settings`}
+                    title="Settings"
+                    onClick={() => setSettingsAgentId(agent.id)}
+                  >
+                    <GearIcon />
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </details>
         <button type="button" className="chat-new" onClick={openNewChat}>
           <span aria-hidden="true">+</span> New chat
         </button>
